@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "Danh sách các bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using MvcPaging
+@using HD.Site.Areas.Admin.Models.ViewModel
+@model ArticleIndexModel
+@section JsFooter{
+   <script>
+       var config = {
+           id: null
+       }
+
+       $('.DeleteItem').off('click').on('click', function (e) {
+           e.preventDefault();
+           config.id = $(this).data('id');
+           $('#modalConfirmDelete').show();
+       });
+       $('#btnOkDelete').off('click').on('click', function (e) {
+           $('#modalConfirmDelete').hide();
+           var id = config.id;
+           config.id = null;
+           $('#frmDelete_' + id).submit();
+       });
+
+       $('#ParentCatId').on('change', function () {
+           $('#frmFilter').submit();
+       });
+
+       $('#CatId').on('change', function () {
+           $('#frmFilter').submit();
+       });
+
+       $('#BtnCreateNew').on('click', function () {
+           var catParentId = $('#ParentCatId').val();
+           var catId = $('#CatId').val();
+           location.href = "/Admin/Article/CreateNew?catParentId=" + catParentId + "&catId=" + catId;
+       });
+
+       $('.EditItem').off('click').on('click', function (e) {
+           e.preventDefault();
+           var id = $(this).data('id');
+           location.href = "/Admin/Article/Update?id=" + id;
+       });
+    </script>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        Danh Sách Bài Viết
+    </h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <div class="box-header with-border">
+            <div class="row col-xs-12">
+                <form method="get" action="/Admin/Article/Index" id="frmFilter">
+                    <div class="form-group">
+                        <label class="col-sm-1 col-xs-12 control-label" title="Danh mục gốc">
+                            DM gốc:
+                        </label>
+                        <div class="col-sm-2 col-xs-12">
+                            @Html.DropDownList("ParentCatId", new SelectList(Model.ArtCats, "Id", "CatName", Model.ParentCatId), "--Chọn DM gốc--", new { @class = "form-control" })
+                        </div>
+                        <label class="col-sm-1 col-xs-12 control-label" title="Danh mục con">
+                            DM con:
+                        </label>
+                        <div class="col-sm-2 col-xs-12">
+                            @Html.DropDownList("CatId", new SelectList(Model.Cats, "Id", "CatName", Model.CatId), "--Chọn DM--", new { @class = "form-control" })
+                        </div>
+
+                        <label class="col-sm-1 col-xs-12 control-label">
+                            Từ khóa:
+                        </label>
+                        <div class="col-sm-2 col-xs-12">
+                            <input type="text" name="Name" value="@Model.KeyWord" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <button class="btn btn-sm btn-primary" title="click để tìm kiếm" id="btnSearch"><i class="fa fa-search"></i> Thêm mới</button>
+                        <button class="btn btn-sm btn-primary pull-right" title="Thêm mới danh mục bài viết" type="button" id="BtnCreateNew"><i class="fa fa-fw fa-plus-square"></i> Thêm mới</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width:5%; text-align:center;">STT</th>
+                            <th style="width:25%; text-align:center;">Tên</th>
+                            <th style="width:15%; text-align:center;">Tác giả</th>
+                            <th style="width:15%; text-align:center;">Sửa lần cuối</th>
+                            <th style="width:10%; text-align:center;">Lượt like</th>
+                            <th style="width:10%; text-align:center;">Lượt xem</th>
+                            <th style="width:5%; text-align:center;">Sửa</th>
+                            <th style="width:5%; text-align:center;">Xóa</th>
+                        </tr>
+                        @{
+                            var lst = Model.Articles.ToList();
+                            var i = Model.Articles.PageIndex * Model.Articles.PageSize;
+                            foreach (var item in lst)
+                            {
+                                i = i + 1;
+                                <tr>
+                                    <td style="width:5%; text-align:center;">@i</td>
+                                    <td style="width:25%; text-align:center;">@item.Name</td>
+                                    <td style="width:15%; text-align:center;">@item.Author</td>
+                                    <td style="width:15%; text-align:center;">@item.UpdateBy</td>
+                                    <td style="width:10%; text-align:center;">@item.LikeCount</td>
+                                    <td style="width:10%; text-align:center;">@item.ViewCount</td>
+                                    <td style="width:5%; text-align:center;">
+                                        <button class="EditItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Sửa đổi"><i class="fa fa-fw fa-edit"></i></button>
+                                    </td>
+                                    <td style="width:5%; text-align:center;">
+                                        @using (Html.BeginForm("Delete", "Article", FormMethod.Post, new { id = "frmDelete_" + item.Id }))
+                                        {
+                                            @Html.Hidden("id", item.Id)
+                                            @Html.AntiForgeryToken()
+                                            <button class="DeleteItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="click để xóa"><i class="fa fa-fw fa-trash"></i></button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="paging">
+                @Html.Pager(Model.Articles.PageSize, Model.Articles.PageNumber, Model.Articles.TotalItemCount).Options(n => n.AddRouteValueFor(m => m.ParentCatId).AddRouteValueFor(m => m.CatId).AddRouteValueFor(m => m.KeyWord).DisplayFirstAndLastPage().SetFirstPageText("<<").SetLastPageText(">>").SetNextPageText(">").SetPreviousPageText("<"))
+            </div>
+        </div>
+        <!-- /.box-footer-->
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+
+<div class="modal modal-default" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="modalConfirmDelete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label style="color: red;">CẢNH BÁO</label>
+            </div>
+            <div class="modal-body form-horizontal">
+                <p>Xóa dữ liệu này có thể xóa đi các dữ liệu có liên quan.</p>
+                <p>Bạn chắc chắn muốn xóa?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btnOkDelete">Xóa</button>
+                <button data-dismiss="modal" class="pull-right btn btn-default" onclick="$('#modalConfirmDelete').hide();"><i class="fa fa-close"></i>Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

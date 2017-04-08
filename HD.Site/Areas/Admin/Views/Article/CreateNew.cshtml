@@ -1,0 +1,156 @@
+﻿
+@{
+    ViewBag.Title = "Thêm mới bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using HD.Site.Areas.Admin.Models.ViewModel
+@model ArticleInputModel
+<link href="/Scripts/plugins/select2/select2.min.css" rel="stylesheet" />
+@section JsFooter{
+    <script src="/Scripts/plugins/select2/select2.min.js"></script>
+    <script src="/Scripts/plugins/select2/vi.js"></script>
+    <script>
+        $('#catParentId').on('change', function () {
+            var id = $(this).val();
+            $.ajax({
+                url: "/Article/LoadChildCats",
+                data: { catParentId: id },
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    var childs = result.data;
+                    var htmlDrop = "<select id = 'CatId' name = 'CatId'>";
+                    for (var i = 0; i < childs.length; i++){
+                        htmlDrop += "<option value=" + childs[0].Id + ">" + childs[i].CatName + "</option>"
+                    }
+                    htmlDrop += "</select>";
+
+                    $('#CatId').html(htmlDrop);
+                },
+                error: function (result) {
+                    console.log('đứt kết nối.');
+                }
+            });
+        });
+
+        $('#btnAddImage').on('click', function (e) {
+            e.preventDefault();
+            var ck = new CKFinder();
+            ck.selectActionFunction = function (url) {
+                $('#ImageUrl').val(url)
+            };
+            ck.popup();
+        });
+
+        var editer = CKEDITOR.replace('txt', {
+            customConfig: "/Scripts/plugins/ckeditor/config.js"
+        });
+
+        $("#Tags").select2({
+            tags: true,
+            ajax: {
+                url: "/Admin/Article/GetTags",
+                dataType: 'json',
+                type: 'POST',
+                delay: 1000,
+                data: function (params) {
+                    return {
+                        keyword: params.term,
+                        page: params.page
+                    };
+                },
+                processResults: function (result, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: $.map(result.data, function (item) {
+                            return {
+                                text: item.TagName,
+                                id: item.TagTitle
+                            }
+                        }),
+                        pagination: {
+                            more: (params.page * 10) < result.total
+                        }
+                    };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            minimumInputLength: 2,
+            formatResult: contractFormatResult,
+            formatSelection: contractFormatSelection
+        });
+
+        function contractFormatResult(contract) {
+            var markup = "<table class='contract-result'><tr>";
+            if (contract.name !== undefined) {
+                markup += "<div class='contract-name'>" + contract.name + "</div>";
+            }
+            markup += "</td></tr></table>"
+            return markup;
+        }
+
+        function contractFormatSelection(contract) {
+            return contract.name;
+        }
+    </script>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        Thêm Mới Bài Viết
+    </h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <form method="post" action="/Admin/Article/CreateNew" class="form-horizontal">
+            @Html.AntiForgeryToken()
+            <div class="box-body">
+                <div class="form-group">
+                    <label class="col-sm-3 col-xs-12 control-label">
+                        Danh mục gốc
+                    </label>
+                    <div class="col-sm-9 col-xs-12">
+                        @Html.DropDownList("catParentId", new SelectList(Model.ParentCats, "Id", "CatName", Model.ParentCatId), "--Danh mục cha--", new { @class = "form-control" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 col-xs-12 control-label">
+                        Danh mục
+                    </label>
+                    <div class="col-sm-9 col-xs-12">
+                        @Html.DropDownList("CatId", new SelectList(Model.ChildCats, "Id", "CatName", Model.CatId), new { @class = "form-control" })
+                    </div>
+                </div>
+                @Html.Partial("ShareElement", Model.ArticleModel)
+
+                <div class="form-group">
+                    <label class="col-sm-3 col-xs-12 control-label">
+                        Tags
+                    </label>
+                    <div class="col-sm-9 col-xs-12">
+                        <select id="Tags" name="tags" multiple class="form-control">
+                            @foreach (var item in Model.Tags)
+                            {
+                                <option value="@item.TagTitle" selected='selected'>@item.TagName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.box-body -->
+            <div class="box-footer">
+                <a href="/Admin/Article/Index" class="btn btn-sm btn-default"><i class="fa fa-fw fa-backward"></i> Quay lại</a>
+                <button type="submit" class="btn btn-sm btn-success pull-right"><i class="fa fa-fw fa-save"></i> Lưu</button>
+            </div>
+            <!-- /.box-footer-->
+        </form>
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->

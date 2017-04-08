@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewBag.Title = "Thêm mới danh mục bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using HD.Domain.Models
+@model ArcticleCategory
+@section JsFooter{
+    
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        Thêm Mới Danh Mục Bài Viết
+    </h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <form method="post" action="/Admin/ArticleCategory/CreateNew" class="form-horizontal">
+            @Html.AntiForgeryToken()
+            @Html.Partial("ShareElement", Model)
+            <!-- /.box-body -->
+            <div class="box-footer">
+                <a href="/Admin/ArticleCategory/Index" class="btn btn-sm btn-default"><i class="fa fa-fw fa-backward"></i> Quay lại</a>
+                <button type="submit" class="btn btn-sm btn-success pull-right"><i class="fa fa-fw fa-save"></i> Lưu</button>
+            </div>
+            <!-- /.box-footer-->
+        </form>
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+

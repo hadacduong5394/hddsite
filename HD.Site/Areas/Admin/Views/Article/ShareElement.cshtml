@@ -1,0 +1,91 @@
+﻿@using HD.Domain.Models
+@model Arcticle
+
+@Html.Hidden("Id", Model.Id)
+@Html.Hidden("CreateBy", Model.CreateBy)
+@Html.Hidden("CreateDate", Model.CreateDate)
+@Html.Hidden("UpdateBy", Model.UpdateBy)
+@Html.Hidden("UpdateDate", Model.UpdateDate)
+@Html.Hidden("ViewCount", Model.ViewCount)
+@Html.Hidden("LikeCount", Model.LikeCount)
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Tên bài viết(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <input type="text" value="@Model.Name" name="Name" required maxlength="128" class="form-control" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Tiêu đề(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <input type="text" value="@Model.Tittle" name="Tittle" required maxlength="256" class="form-control" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Mô tả chung(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <textarea name="Descreption" required maxlength="512" class="form-control">@Model.Descreption</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        MetaDescreption(<span style="color:red;">dùng để seo</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <textarea name="MetaDescreption" required maxlength="256" class="form-control">@Model.MetaDescreption</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Metakeyword(<span style="color:red;">dùng để seo</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <textarea name="MetaKeyword" required maxlength="256" class="form-control">@Model.MetaKeyword</textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Tác giả(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        <input type="text" value="@Model.Author" name="Author" required maxlength="128" class="form-control" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Ảnh bài viết(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        @Html.TextBox("ImageUrl", Model.ImageUrl, new { @class = "required form-control", title = "nhập ảnh bài viết" })
+        <a href="#" class="btn btn-link" id="btnAddImage">Thêm Ảnh</a>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Nội dung(<span style="color:red;">*</span>):
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        @Html.TextArea("Content", Model.Content, new { @class = "required form-control", id = "txt", title = "nhập ảnh thông tin chi tiết bài viết" })
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Xuất bản:
+    </label>
+    <div class="col-sm-9 col-xs-12">
+        @Html.CheckBox("Status", Model.Status)
+    </div>
+</div>

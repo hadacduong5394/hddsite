@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Nhóm sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using HD.Site.Areas.Admin.Models.ViewModel
+@using MvcPaging
+@model TypeCategoryIndexModel
+@section JsFooter{
+    <script>
+        var config = {
+            id: null
+        }
+
+        $('.DeleteItem').off('click').on('click', function (e) {
+            e.preventDefault();
+            config.id = $(this).data('id');
+            $('#modalConfirmDelete').show();
+        });
+
+        $('#btnOkDelete').off('click').on('click', function (e) {
+            $('#modalConfirmDelete').hide();
+            var id = config.id;
+            config.id = null;
+            $('#frm_' + id).submit();
+        });
+
+        $('#BtnCreateNew').on('click', function () {
+            location.href = "/Admin/TypeCategory/CreateNew";
+        });
+
+        $('.EditItem').off('click').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            location.href = "/Admin/TypeCategory/Update?id=" + id;
+        });
+    </script>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Danh sách nhóm sản phẩm</h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <div class="box-header with-border">
+            <div class="row col-xs-12">
+                <form method="get" action="/Admin/TypeCategory/Index">
+                    <div class="form-group">
+                        <label class="col-sm-1 col-xs-12 control-label">
+                            Tên
+                        </label>
+                        <div class="col-sm-4 col-xs-12">
+                            <input type="text" class="form-control" name="KeyWord" value="@Model.KeyWord">
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-6">
+                        <button class="btn btn-sm btn-primary" type="submit">
+                            <i class="fa fa-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                    <div class="col-sm-1 col-xs-6">
+                        <button class="btn btn-sm btn-primary" title="Thêm mới" type="button" id="BtnCreateNew"><i class="fa fa-fw fa-plus-square"></i> Thêm mới</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 5%; text-align: center;">STT</th>
+                            <th style="width: 35%; text-align: center;">Tên nhóm</th>
+                            <th style="width: 25%; text-align: center;">URL</th>
+                            <th style="width: 25%; text-align: center;">Người sửa cuối</th>
+                            <th style="width: 5%; text-align: center;">Sửa</th>
+                            <th style="width: 5%; text-align: center;">Xóa</th>
+                        </tr>
+                        @{
+                            var lstRole = Model.TypeCategories.ToList();
+                            var i = Model.TypeCategories.PageIndex * Model.TypeCategories.PageSize;
+                            foreach (var item in lstRole)
+                            {
+                                i++;
+                                using (Html.BeginForm("Delete", "TypeCategory", FormMethod.Post, new { id = "frm_" + item.Id }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("id", item.Id)
+                                    <tr>
+                                        <td style="width: 5%; text-align: center;">@i</td>
+                                        <td style="width: 35%; text-align: left;">@item.Name</td>
+                                        <td style="width: 25%; text-align: left;">@item.URL</td>
+                                        <td style="width: 25%; text-align: left;">@item.UpdateBy</td>
+                                        <td style="width: 5%; text-align: center;">
+                                            <button class="EditItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Sửa đổi"><i class="fa fa-fw fa-edit"></i></button>
+                                        </td>
+                                        <td style="width: 5%; text-align: center;">
+                                            <button class="DeleteItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Xóa quyền"><i class="fa fa-fw fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="paging">
+                @Html.Pager(Model.TypeCategories.PageSize, Model.TypeCategories.PageNumber, Model.TypeCategories.TotalItemCount).Options(n => n.AddRouteValueFor(m => m.KeyWord).DisplayFirstAndLastPage().SetFirstPageText("<<").SetLastPageText(">>").SetNextPageText(">").SetPreviousPageText("<"))
+            </div>
+        </div>
+        <!-- /.box-footer-->
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+<div class="modal modal-default" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="modalConfirmDelete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label style="color: red;">CẢNH BÁO</label>
+            </div>
+            <div class="modal-body form-horizontal">
+                <p>Xóa dữ liệu này có thể xóa đi các dữ liệu có liên quan.</p>
+                <p>Bạn chắc chắn muốn xóa?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btnOkDelete">Xóa</button>
+                <button data-dismiss="modal" class="pull-right btn btn-default" onclick="$('#modalConfirmDelete').hide();"><i class="fa fa-close"></i>Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

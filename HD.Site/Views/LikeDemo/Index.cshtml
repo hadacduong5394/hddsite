@@ -1,0 +1,61 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model IEnumerable<HD.Domain.Models.Product>
+@section JsFooter{
+    <script src="~/Scripts/jquery.signalR-2.2.1.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script>
+        $(function () {
+            var postClient = $.connection.likeButton;
+
+            postClient.client.updateLikeCount = function (result) {
+                var productId = result.ProductId;
+                var likeCount = result.Count;
+                var str = "likeCount_" + productId;
+                $('#' + str).fadeOut(function () {
+                    $(this).text(likeCount);
+                    $(this).fadeIn();
+                });
+            };
+
+            postClient.client.updateDisLikeCount = function (result) {
+                var productId = result.ProductId;
+                var dislikeCount = result.Count;
+                var str = "dislikeCount_" + productId;
+                $('#' + str).fadeOut(function () {
+                    $(this).text(dislikeCount);
+                    $(this).fadeIn();
+                });
+            };
+
+            $(".like-button").off('click').on("click", function () {
+                var id = $(this).data("id");
+                postClient.server.like(id);
+            });
+
+            $(".dislike-button").off('click').on("click", function () {
+                var id = $(this).data("id");
+                postClient.server.disLike(id);
+            });
+
+            $.connection.hub.start();
+        });
+    </script>
+}
+
+@foreach (var item in Model)
+{
+    <h1>@item.Name</h1>
+    <button data-id="@item.Id" type="button" class="like-button" title="Click to like this post!">
+        <i class="fa fa-thumbs-up"></i> Like | <span id="likeCount_@item.Id">@item.LikeCount</span>
+    </button>
+
+    <button data-id="@item.Id" type="button" class="dislike-button" title="Click to dislike this post!">
+        <i class="fa fa-thumbs-down"></i> Dislike | <span id="dislikeCount_@item.Id">@item.DisLikeCount</span>
+    </button>
+    <br/>
+}
+

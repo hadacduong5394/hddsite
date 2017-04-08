@@ -1,0 +1,158 @@
+﻿
+@{
+    ViewBag.Title = "Quản lý quyền người dùng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HD.Site.Models
+@model RoleIndexModel
+@section JsFooter{
+    <script src="/Scripts/plugins/customJs/roleController.js"></script>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Danh sách quyền người dùng</h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <div class="box-header with-border">
+            <div class="row col-xs-12">
+                <form method="get" action="/Role/Index">
+                    <div class="form-group">
+                        <label class="col-sm-1 col-xs-12 control-label">
+                            Tên quyền
+                        </label>
+                        <div class="col-sm-4 col-xs-12">
+                            <input type="text" class="form-control" name="KeyWord" value="@Model.KeyWord">
+                        </div>
+                    </div>
+                    <div class="col-sm-1 col-xs-6">
+                        <button class="btn btn-sm btn-primary" type="submit">
+                            <i class="fa fa-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                    <div class="col-sm-1 col-xs-6">
+                        <button class="btn btn-sm btn-primary" title="Thêm mới quyền" type="button" id="BtnCreateNew"><i class="fa fa-fw fa-plus-square"></i> Thêm mới</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 5%; text-align: center;">STT</th>
+                            <th style="width: 35%; text-align: center;">Tên quyền</th>
+                            <th style="width: 40%; text-align: center;">Mô tả chung</th>
+                            <th style="width: 20%; text-align: center;">Các thao tác</th>
+                        </tr>
+                        @{
+                            var lstRole = Model.AppRoles.ToList();
+                            var i = Model.AppRoles.PageIndex * Model.AppRoles.PageSize;
+                            foreach (var item in lstRole)
+                            {
+                                i++;
+                                using (Html.BeginForm("Delete", "Role", FormMethod.Post, new { id = "frm_" + item.Id }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.Hidden("id",item.Id)
+                                    <tr>
+                                        <td style="width: 5%; text-align: center;">@i</td>
+                                        <td style="width: 35%; text-align: center;">@item.Name</td>
+                                        <td style="width: 40%; text-align: center;">@item.Descreption</td>
+                                        <td style="width: 20%; text-align: center;">
+                                            <button class="viewDetail btn btn-sm btn-default" data-id="@item.Id" type="button" title="Xem chi tiết"><i class="fa fa-fw fa-eye"></i></button>
+                                            <button class="EditItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Sửa đổi"><i class="fa fa-fw fa-edit"></i></button>
+                                            <button class="DeleteItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Xóa quyền"><i class="fa fa-fw fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="paging">
+                @Html.Pager(Model.AppRoles.PageSize, Model.AppRoles.PageNumber, Model.AppRoles.TotalItemCount).Options(n => n.AddRouteValueFor(m => m.KeyWord).DisplayFirstAndLastPage().SetFirstPageText("<<").SetLastPageText(">>").SetNextPageText(">").SetPreviousPageText("<"))
+            </div>
+        </div>
+        <!-- /.box-footer-->
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+<div class="modal modal-default" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="modalConfirmDelete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label style="color: red;">CẢNH BÁO</label>
+            </div>
+            <div class="modal-body form-horizontal">
+                <p>Xóa dữ liệu này có thể xóa đi các dữ liệu có liên quan.</p>
+                <p>Bạn chắc chắn muốn xóa?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btnOkDelete">Xóa</button>
+                <button data-dismiss="modal" class="pull-right btn btn-default" onclick="$('#modalConfirmDelete').hide();"><i class="fa fa-close"></i>Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-default" id="modalViewDetail">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4><i class="fa fa-eye"></i> Thông tin chi tiết</h4>
+            </div>
+            <div class="modal-body form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-3">Tên chắc năng:</div>
+                    <p class="col-sm-7 lblName"></p>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">Người tạo:</div>
+                    <p class="col-sm-7 lblCreateBy"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Ngày Tạo:</div>
+                    <p class="col-sm-7 lblCreateDate"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3"> Người sửa lần cuối:</div>
+                    <p class="col-sm-7 lblUpdateBy"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Lần Cuối Chỉnh Sửa:</div>
+                    <p class="col-sm-7 lblUpdateDate"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Mô tả chung:</div>
+                    <p class="col-sm-7 lblDescreption"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Trạng Thái:</div>
+                    <p class="col-sm-7 lblStatus"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="pull-right btn btn-danger"><i class="fa fa-close"></i>Đóng</a>
+            </div>
+        </div>
+    </div>
+</div>
+

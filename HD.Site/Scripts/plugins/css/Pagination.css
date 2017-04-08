@@ -1,0 +1,33 @@
+﻿.paging a{
+    border: 0.5px solid #ddd;
+    padding: 5px 5px 5px 5px;
+    margin: 0 0.5px 0 0.5px;
+    background-color: #eee;
+    color: black;
+}
+
+.paging span{
+    border: 0.5px solid #337ab7;
+    padding: 5px 5px 5px 5px;
+    margin: 0 0.5px 0 0.5px;
+    color: white;
+    background-color: #337ab7;
+}
+
+.paging .spacer{
+    border: none;
+}
+
+.paging .disabled{
+    border: 0.5px solid #ddd;
+    padding: 5px 5px 5px 5px;
+    margin: 0 0.5px 0 0.5px;
+    background-color: #fff;
+    color: #777;
+    cursor: not-allowed;
+}
+
+.paging{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}

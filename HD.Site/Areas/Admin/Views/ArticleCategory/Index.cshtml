@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "Danh mục các bài viết";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@section JsFooter{
+    <script>
+        var config = {
+            id: null
+        }
+
+        $('#CatId').on('change', function () {
+            $('#frmFilter').submit();
+        });
+
+        $('#BtnCreateNew').on('click', function () {
+            var parentId = $('#CatId').val();
+            location.href = "/Admin/ArticleCategory/CreateNew?parentId=" + parentId;
+        });
+
+        $('.EditItem').off('click').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            location.href = "/Admin/ArticleCategory/Update?id=" + id;
+        });
+
+        $('.ViewDetail').off('click').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            $.ajax({
+                url: "/Admin/ArticleCategory/ViewDetail",
+                data: { id: id },
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    $('.lblName').text(result.Name);
+                    $('.lblCreateBy').text(result.CreateBy);
+                    $('.lblCreateDate').text(result.CreateDate);
+                    $('.lblUpdateBy').text(result.UpdateBy);
+                    $('.lblUpdateDate').text(result.UpdateDate);
+                    $('.lblURL').text(result.URL);
+                    $('.lblParent').text(result.Parent);
+
+                    $('#modalViewDetail').modal();
+                }
+            });
+        });
+
+        $('.DeleteItem').off('click').on('click', function (e) {
+            e.preventDefault();
+            config.id = $(this).data('id');
+            $('#modalConfirmDelete').show();
+        });
+        $('#btnOkDelete').off('click').on('click', function (e) {
+            $('#modalConfirmDelete').hide();
+            var id = config.id;
+            config.id = null;
+            $('#frmDelete_' + id).submit();
+        });
+    </script>
+}
+
+@using HD.Site.Areas.Admin.Models.ViewModel
+@using MvcPaging
+@model ArticleCatIndexModel
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        Danh Mục Bài Viết
+    </h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <div class="box-header with-border">
+            <div class="row col-xs-12">
+                <form method="get" action="/Admin/ArticleCategory/Index" id="frmFilter">
+                    <div class="form-group">
+                        <label class="col-sm-2 col-xs-12 control-label">
+                            Danh mục gốc:
+                        </label>
+                        <div class="col-sm-3 col-xs-12">
+                            @Html.DropDownList("CatId", new SelectList(Model.Parents, "Id", "CatName", Model.CatId), "--Chọn danh mục gốc--", new { @class = "form-control" })
+                        </div>
+                        <label class="col-sm-1 col-xs-12 control-label">
+                            Tên:
+                        </label>
+                        <div class="col-sm-3 col-xs-12">
+                            <input type="text" name="Name" value="@Model.Name" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <button class="btn btn-sm btn-primary" title="click để tìm kiếm" id="btnSearch"><i class="fa fa-search"></i> Thêm mới</button>
+                        <button class="btn btn-sm btn-primary pull-right" title="Thêm mới danh mục bài viết" type="button" id="BtnCreateNew"><i class="fa fa-fw fa-plus-square"></i> Thêm mới</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width:5%; text-align:center;">STT</th>
+                            <th style="width:25%; text-align:center;">Tên</th>
+                            <th style="width:15%; text-align:center;">Đường link</th>
+                            <th style="width:15%; text-align:center;">Sửa lần cuối</th>
+                            <th style="width:5%; text-align:center;" title="Danh mục gốc">Gốc</th>
+                            <th style="width:5%; text-align:center;">Xem</th>
+                            <th style="width:5%; text-align:center;">Sửa</th>
+                            <th style="width:5%; text-align:center;">Xóa</th>
+                        </tr>
+                        @{
+                            var lst = Model.ArticleCategories.ToList();
+                            var i = Model.ArticleCategories.PageIndex * Model.ArticleCategories.PageSize;
+                            foreach (var item in lst)
+                            {
+                                i = i + 1;
+                                <tr>
+                                    <td style="width:5%; text-align:center;">@i</td>
+                                    <td style="width:25%; text-align:center;">@item.CatName</td>
+                                    <td style="width:15%; text-align:center;">@item.URL</td>
+                                    <td style="width:15%; text-align:center;">@item.UpdateBy</td>
+                                    <td style="width:5%; text-align:center;" title="Danh mục gốc">
+                                        @if (!item.ParentId.HasValue)
+                                        {
+                                            <i class="fa fa-check"></i>
+                                        }
+                                    </td>
+                                    <td style="width:5%; text-align:center;">
+                                        <button class="ViewDetail btn btn-sm btn-default" data-id="@item.Id" type="button" title="Xem chi tiết"><i class="fa fa-fw fa-eye"></i></button>
+                                    </td>
+                                    <td style="width:5%; text-align:center;">
+                                        <button class="EditItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Sửa đổi"><i class="fa fa-fw fa-edit"></i></button>
+                                    </td>
+                                    <td style="width:5%; text-align:center;">
+                                        @using (Html.BeginForm("Delete", "ArticleCategory", FormMethod.Post, new { id = "frmDelete_" + item.Id }))
+                                        {
+                                            @Html.Hidden("id", item.Id)
+                                            @Html.AntiForgeryToken()
+                                            <button class="DeleteItem btn btn-sm btn-default" data-id="@item.Id" type="button" title="Xóa quyền"><i class="fa fa-fw fa-trash"></i></button>
+                                        }                                    
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+            <div class="paging">
+                @Html.Pager(Model.ArticleCategories.PageSize, Model.ArticleCategories.PageNumber, Model.ArticleCategories.TotalItemCount).Options(n => n.AddRouteValueFor(m => m.CatId).AddRouteValueFor(m => m.Name).DisplayFirstAndLastPage().SetFirstPageText("<<").SetLastPageText(">>").SetNextPageText(">").SetPreviousPageText("<"))
+            </div>
+        </div>
+        <!-- /.box-footer-->
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+
+<div class="modal modal-default" id="modalViewDetail">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4><i class="fa fa-eye"></i> Thông tin chi tiết</h4>
+            </div>
+            <div class="modal-body form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-3">Tên danh mục:</div>
+                    <p class="col-sm-7 lblName"></p>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">Người tạo:</div>
+                    <p class="col-sm-7 lblCreateBy"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Ngày Tạo:</div>
+                    <p class="col-sm-7 lblCreateDate"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3"> Người sửa lần cuối:</div>
+                    <p class="col-sm-7 lblUpdateBy"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Lần Cuối Chỉnh Sửa:</div>
+                    <p class="col-sm-7 lblUpdateDate"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">URL:</div>
+                    <p class="col-sm-7 lblURL"></p>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">Danh mục gốc:</div>
+                    <p class="col-sm-7 lblParent"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" data-dismiss="modal" class="pull-right btn btn-danger"><i class="fa fa-close"></i>Đóng</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-default" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" id="modalConfirmDelete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label style="color: red;">CẢNH BÁO</label>
+            </div>
+            <div class="modal-body form-horizontal">
+                <p>Xóa dữ liệu này có thể xóa đi các dữ liệu có liên quan.</p>
+                <p>Bạn chắc chắn muốn xóa?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="btnOkDelete">Xóa</button>
+                <button data-dismiss="modal" class="pull-right btn btn-default" onclick="$('#modalConfirmDelete').hide();"><i class="fa fa-close"></i>Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

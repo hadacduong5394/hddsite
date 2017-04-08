@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewBag.Title = "Thêm mới quyền";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using HD.Context
+@model Role
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>Thông tin quyền hệ thống</h1>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Default box -->
+    <div class="box">
+        <form method="post" action="/Role/CreateNew" class="form-horizontal">
+            @Html.AntiForgeryToken()
+            @Html.Hidden("Id", Model.Id)
+            @Html.Hidden("CreateBy", Model.CreateBy)
+            @Html.Hidden("CreateDate", Model.CreateDate)
+            @Html.Hidden("UpdateBy", Model.UpdateBy)
+            @Html.Hidden("UpdateDate", Model.UpdateDate)
+            @Html.Partial("ShareElement", Model)
+            <!-- /.box-body -->
+            <div class="box-footer">
+                <a href="/Role/Index" class="btn btn-sm btn-default"><i class="fa fa-fw fa-backward"></i> Quay lại</a>
+                <button type="submit" class="btn btn-sm btn-success pull-right"><i class="fa fa-fw fa-save"></i> Lưu</button>
+            </div>
+            <!-- /.box-footer-->
+        </form>
+    </div>
+    <!-- /.box -->
+</section>
+<!-- /.content -->
+

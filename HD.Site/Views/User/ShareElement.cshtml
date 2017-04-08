@@ -1,0 +1,49 @@
+﻿@using HD.Site.Models
+@model UserModelDetail
+
+<div class="form-group">
+    <label class="control-label col-md-3 col-sm-3 col-xs-12">
+        Họ tên(<span style="color:red;">*</span>)
+    </label>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(Model => Model.User.FullName, new { @required = "required", @class = "form-control", Maxlength = "128" })
+    </div>
+</div>
+<div class="form-group">
+    <label class="control-label col-md-3 col-sm-3 col-xs-12">
+        Email(<span style="color:red;">*</span>)
+    </label>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(Model => Model.User.Email, new { @required = "required", @class = "form-control", type = "email", placeholder = "example@mail.ru" })
+    </div>
+</div>
+<div class="form-group">
+    <label class="control-label col-md-3 col-sm-3 col-xs-12">
+        Trạng thái(<span style="color:red;">*</span>)
+    </label>
+    <div class="col-md-1 col-sm-11 col-xs-12">
+        @Html.CheckBoxFor(Model => Model.User.Status)
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-3 col-xs-12 control-label">
+        Chọn nhóm người dùng(<span style="color:red;">*</span>):
+    </label>
+</div>
+<div class="row">
+    @for (int i = 0; i < Model.Groups.Count; i++)
+    {
+        @Html.HiddenFor(Model => Model.Groups[i].Id)
+        @Html.HiddenFor(Model => Model.Groups[i].Descreption)
+        @Html.HiddenFor(Model => Model.Groups[i].Name)
+        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+            <div class="form-group">
+                <label class="col-lg-10 col-md-10 col-sm-10 col-xs-10 control-label" title="@Model.Groups[i].Descreption">@Model.Groups[i].Name</label>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                    @Html.CheckBoxFor(Model => Model.Groups[i].IsCheck, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

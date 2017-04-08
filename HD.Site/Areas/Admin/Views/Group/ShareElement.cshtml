@@ -1,0 +1,52 @@
+﻿@using HD.Site.Areas.Admin.Models
+@model GroupModelDetail
+
+<div class="box-body">
+    <div class="form-group">
+        <label class="col-sm-3 col-xs-12 control-label">
+            Tên nhóm(<span style="color:red;">*</span>)
+        </label>
+        <div class="col-sm-9 col-xs-12">
+            @Html.TextBoxFor(Model => Model.Group.Name, new { @required = "required", @class = "form-control col-md-7 col-xs-12", Maxlength = "128" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 col-xs-12 control-label">
+            Mô tả chung
+        </label>
+        <div class="col-sm-9 col-xs-12">
+            @Html.TextAreaFor(Model => Model.Group.Descreption, new { @required = "required", @class = "form-control col-md-7 col-xs-12", Maxlength = "256" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 col-xs-12 control-label">
+            Trạng thái
+        </label>
+        <div class="checkbox icheck col-sm-7 col-xs-12">
+            @Html.CheckBoxFor(Model => Model.Group.Status, new { @class = "form-control col-md-7 col-xs-12" })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 col-xs-12 control-label">
+            Quyền hạn cho nhóm chức năng này(<span style="color:red;">*</span>):
+        </label>
+    </div>
+    <div class="row">
+        @for (int i = 0; i < Model.Roles.Count; i++)
+            {
+            @Html.HiddenFor(Model => Model.Roles[i].Id)
+            @Html.HiddenFor(Model => Model.Roles[i].Descreption)
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                <div class="form-group">
+                    <label class="col-lg-10 col-md-10 col-sm-10 col-xs-10 control-label">@Model.Roles[i].Descreption</label>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                        @Html.CheckBoxFor(Model => Model.Roles[i].IsCheck, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,32 @@
+﻿@using HD.Context
+@model Role
+
+<div class="box-body">
+    <div class="form-group">
+        <label class="col-sm-2 col-xs-12 control-label">
+            Tên quyền(<span style="color:red;">*</span>)
+        </label>
+        <div class="col-sm-10 col-xs-12">
+            <input type="text" class="form-control" required value="@Model.Name" name="Name" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 col-xs-12 control-label">
+            Mô tả chung(<span style="color:red;">*</span>)
+        </label>
+        <div class="col-sm-10 col-xs-12">
+            @Html.TextArea("Descreption", Model.Descreption, new { @class = "form-control", required= "required" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 col-xs-12 control-label">
+            Trạng thái
+        </label>
+        <div class="checkbox icheck col-sm-7 col-xs-12">
+            @Html.CheckBox("Status", Model.Status)
+        </div>
+    </div>
+
+</div>
